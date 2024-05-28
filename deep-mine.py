@@ -158,14 +158,7 @@ class Adam: ...
 class SGD: ... # StochasticGradDescent
 
 class Activation: ...
-class ReLU(Activation): 
-    def __init__(self):
-        ...
-    def __call__(self, x:Tensor):
-        return self.forward(x)
-    def forward(self, x:Tensor):
-        # return 1/(1+np.exp(-x))
-        return (Tensor(np.ones_like(x.array))+(-x).exp())**(-1)
+class ReLU(Activation): ...
         
 class Sigmoid(Activation): 
     def __init__(self): 
