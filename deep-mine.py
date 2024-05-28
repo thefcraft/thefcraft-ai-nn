@@ -27,7 +27,7 @@ class Tensor:
         # return f"Value(shape={self.array.shape}, grad={self.grad.shape})"
         return self.array.__repr__()
     def __add__(self, other):
-        other = other if isinstance(other, Tensor) else Tensor(other)
+        other = other if isinstance(other, Tensor) else Tensor(other if isinstance(other, np.ndarray) else other*np.ones_like(self.array))
         out = Tensor(self.array + other.array, (self, other), '+')
         def _backward():
             self.grad += np.ones_like(self.array) * out.grad
@@ -47,8 +47,7 @@ class Tensor:
     def __rsub__(self, other):
         return other + (-self)
     def __mul__(self, other):
-        other = other if isinstance(other, np.ndarray) else -np.ones_like(self.array)
-        other = other if isinstance(other, Tensor) else Tensor(other)
+        other = other if isinstance(other, Tensor) else Tensor(other if isinstance(other, np.ndarray) else  other*np.ones_like(self.array))
         out = Tensor(self.array * other.array, (self, other), '*')
         def _backward():
             self.grad += other.array * out.grad
@@ -103,14 +102,14 @@ class Tensor:
             self.grad += out.array * out.grad
         out._backward = _backward
         return out
-    def mean(self, axis=...):
+    def mean(self, axis=0):
         x = self.array
         out = Tensor(x.mean(axis=axis), (self, ), 'mean')
         def _backward():
             self.grad += out.grad/self.shape[0]
         out._backward = _backward
         return out
-    def sum(self, axis=...):
+    def sum(self, axis=0):
         x = self.array
         out = Tensor(x.sum(axis=axis), (self, ), 'sum')
         def _backward():
@@ -159,7 +158,7 @@ class SGD: ... # StochasticGradDescent
 
 class Activation: ...
 class ReLU(Activation): ...
-        
+
 class Sigmoid(Activation): 
     def __init__(self): 
         self.grad = None
